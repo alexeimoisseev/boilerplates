@@ -2,7 +2,6 @@ const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-
 const PORT = process.env.PORT;
 
 const app = express();
@@ -21,19 +20,12 @@ app.use(session({
     rolling: true,
 }));
 
+app.use((req, res, next) => {
+    res.setHeader('x-express-cluster-pid', process.pid);
+    next();
+});
 app.get('/', (req, res) => {
     res.send('ok');
 });
 
-
-function getHost(addr) {
-    if (addr.family === 'IPv6') {
-        return `[${addr.address}]`;
-    }
-    return addr.address;
-}
-const server = app.listen(PORT || 8080, () => {
-    const addr = server.address();
-    // eslint-disable-next-line
-    console.log(`App listening on http://${getHost(addr)}:${addr.port}/`);
-});
+module.exports = app;
